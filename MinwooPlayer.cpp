@@ -48,7 +48,8 @@ int MinwooPlayer::Play(int phase, int* board, int* result)
                 (IsSameGemOrBomb(state->gemType, Up(startPoint)) && IsSameGemOrBomb(state->gemType, Down(startPoint))))
                 continue;
 
-            // 출발점이 폭탄인 경우
+            // 출발점이 폭탄인 경우 탐색하지 않음
+            if (GetGemType(curPoint) > 100) continue;
 
             // 탐색 시작
             while(true)
@@ -89,9 +90,13 @@ int MinwooPlayer::Play(int phase, int* board, int* result)
                     {
                         FinishGame();   // 폭탄을 터뜨려 터지는 보석 계산
                         int score = CalculateScore();   // 점수 계산
-                        cout << score << "," << bestScore << endl;
                         if (score > bestScore)
                         {
+                            cout << "(" << score << "," << bestScore << ")" << endl;
+                            for (unsigned int i = 0; i < state->resultVect.size(); i++)
+                            {
+                                cout << state->resultVect[i].x << ", " << state->resultVect[i].y << endl;
+                            }
                             bestResult = CreateMemento();
                             bestScore = score;
                         }
@@ -196,14 +201,21 @@ void MinwooPlayer::FinishGame()
             for each (SearchDirection::Enum direction in sdVect)
             {
                 Point burstPoint = MovePoint(bombPoint, direction);
-                vector<Point>::iterator itr =
-                    find(state->resultVect.begin(), state->resultVect.end(), burstPoint);
-                // 한 붓에 포함되지 않았던 점이면 burstSet에 추가
-                if (itr == state->resultVect.end())
-                    state->burstSet.insert(burstPoint);
-                // burstPoint가 폭탄이면 bombQ에 추가
-                if (GetGemType(burstPoint) > 100)
-                    bombQ.push(burstPoint);
+                if (IsValidatePoint(burstPoint))
+                {
+                    vector<Point>::iterator itr =
+                        find(state->resultVect.begin(), state->resultVect.end(), burstPoint);
+                    set<Point>::iterator itr2 =
+                        find(state->burstSet.begin(), state->burstSet.end(), burstPoint);
+                    // 한 붓에 포함되지 않았던 점이면 burstSet에 추가
+                    if (itr == state->resultVect.end() && itr2 == state->burstSet.end())
+                    {
+                        state->burstSet.insert(burstPoint);
+                        // burstPoint가 폭탄이면 bombQ에 추가
+                        if (GetGemType(burstPoint) > 100)
+                            bombQ.push(burstPoint);
+                    }
+                }
             }
             break;
         case 103:   // 3 레벨

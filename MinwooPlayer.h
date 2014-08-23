@@ -57,7 +57,6 @@ private:
     // 한 붓 그리기 상태를 표현하는 내부 클래스
     class State
     {
-        friend class Memento;
         friend class MinwooPlayer;
     private:
         int gemType = 0;            // 한 붓에 그려지는 보석의 종류
@@ -66,7 +65,7 @@ private:
         SearchDirection::Enum sd;   // 다음 보석으로 이동할 수 있는 방향을 저장
         vector<Point> resultVect;   // 한 붓에 포함되는 보석&폭탄: size()로 한붓 기본 점수 계산
         vector<Point> bombVect;     // 한 붓에 포함되는 폭탄: resultVect의 일부임(Validate에서 생성)
-        set<Point> burstSet;        // 폭탄의 폭발로 터지는 보석들: 1개당 1점
+        set<Point> burstSet;        // 폭탄의 폭발로 터지는 보석들: 1개당 1점(FinishGame에서 생성)
 
     public:
         void Copy(const shared_ptr<State> src)
@@ -162,5 +161,10 @@ private:
         return p;
     }
 
+    // 유효한 점인지 확인
+    inline bool IsValidatePoint(Point p)
+    {
+        return p.x >= 0 && p.x < width && p.y >= 0 && p.y < height;
+    }
 };
 
