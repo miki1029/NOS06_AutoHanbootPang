@@ -127,7 +127,9 @@ int MinwooPlayer::Play(int phase, int* board, int* result)
                 }
                 state->resultVect.push_back(curPoint);
                 // 8회 이동이 끝났으면 종료상태
-                if (state->resultVect.size() >= 8)
+                unsigned int maxMove = 8;
+                if (phase == 2) maxMove = 3;    // 두 번째 턴인 경우 폭탄 생성 방지를 위해 3회만 움직임
+                if (state->resultVect.size() >= maxMove)
                 {
                     state->finish = true;
                 }
